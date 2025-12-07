@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOTORO - Твой Мобильный Тренер</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: all 0.5s ease;
+        }
+
+        /* Light Theme */
+        body.light {
+            background: #f8f9fa;
+            color: #1a1a1a;
+        }
+
+        /* Dark Theme */
+        body.dark {
+            background: #0a0a0a;
+            color: #ffffff;
+        }
+
+        /* Gradient Themes */
+        body.gradient-1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        body.gradient-2 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: #fff;
+        }
+
+        body.gradient-3 {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #fff;
+        }
+
+        body.gradient-4 {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: #fff;
+        }
+
+        body.gradient-5 {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: #fff;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+
+        body.light nav {
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark nav {
+            background: rgba(10, 10, 10, 0.8);
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
+        }
+
+        body[class*="gradient"] nav {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        body.light .logo {
+            color: #667eea;
+        }
+
+        body.dark .logo {
+            color: #00f2fe;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        body.light .btn {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        body.light .btn:hover {
+            background: #667eea;
+            color: #fff;
+        }
+
+        body.dark .btn {
+            border-color: #00f2fe;
+            color: #00f2fe;
+        }
+
+        body.dark .btn:hover {
+            background: #00f2fe;
+            color: #0a0a0a;
+        }
+
+        body[class*="gradient"] .btn {
+            border-color: #fff;
+            color: #fff;
+        }
+
+        body[class*="gradient"] .btn:hover {
+            background: #fff;
+            color: #333;
+        }
+
+        .theme-selector {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .theme-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-btn::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.1) rotate(360deg);
+        }
+
+        .theme-btn.active {
+            transform: scale(1.15);
+            box-shadow: 0 0 20px currentColor;
+        }
+
+        body.light .theme-btn {
+            border-color: #667eea;
+        }
+
+        body.dark .theme-btn {
+            border-color: #00f2fe;
+        }
+
+        .theme-btn.light-theme { background: #ffffff; }
+        .theme-btn.dark-theme { background: #0a0a0a; }
+        .theme-btn.grad-1 { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .theme-btn.grad-2 { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .theme-btn.grad-3 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .theme-btn.grad-4 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .theme-btn.grad-5 { background: linear-gradient(135deg, #fa709a, #fee140); }
+
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 8rem 5% 4rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .hero-content {
+            text-align: left;
+            animation: slideInLeft 1s ease;
+        }
+
+        .hero-image {
+            position: relative;
+            animation: slideInRight 1s ease;
+        }
+
+        .hero-visual {
+            width: 100%;
+            height: 600px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        body.light .floating-element {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        body.dark .floating-element {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            box-shadow: 0 10px 40px rgba(0, 242, 254, 0.3);
+        }
+
+        body[class*="gradient"] .floating-element {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(255, 255, 255, 0.2);
+        }
+
+        .floating-element:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .floating-element:nth-child(2) { top: 60%; left: 5%; animation-delay: 0.5s; width: 60px; height: 60px; }
+        .floating-element:nth-child(3) { top: 20%; right: 15%; animation-delay: 1s; width: 100px; height: 100px; }
+        .floating-element:nth-child(4) { bottom: 15%; right: 10%; animation-delay: 1.5s; }
+
+        .central-icon {
+            font-size: 200px;
+            animation: pulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        body.light .hero h1 {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        body.dark .hero h1 {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            margin-bottom: 3rem;
+            opacity: 0.8;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .cta-btn {
+            padding: 1.2rem 3rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: fadeInUp 1s ease 0.4s both;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.light .cta-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+        }
+
+        body.dark .cta-btn {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: #0a0a0a;
+        }
+
+        body[class*="gradient"] .cta-btn {
+            background: #fff;
+            color: #333;
+        }
+
+        .cta-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .cta-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature {
+            padding: 6rem 5%;
+        }
+
+        .feature h2 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        body.light .feature h2 {
+            color: #667eea;
+        }
+
+        body.dark .feature h2 {
+            color: #00f2fe;
+        }
+
+        .feature-content {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .feature-content p {
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+            opacity: 0.9;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .phone-mockup-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 3rem;
+            max-width: 1400px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .phone-frame {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+            animation: floatPhone 4s ease-in-out infinite;
+        }
+
+        .phone-frame:nth-child(2) { animation-delay: 0.5s; }
+        .phone-frame:nth-child(3) { animation-delay: 1s; }
+
+        .phone-device {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 9/19;
+            border-radius: 40px;
+            padding: 15px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        body.light .phone-device {
+            background: linear-gradient(145deg, #e6e6e6, #ffffff);
+            border: 3px solid #ddd;
+        }
+
+        body.dark .phone-device {
+            background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+            border: 3px solid #333;
+        }
+
+        body[class*="gradient"] .phone-device {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .phone-frame:hover .phone-device {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.4);
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40%;
+            height: 30px;
+            border-radius: 0 0 20px 20px;
+        }
+
+        body.light .phone-notch {
+            background: #333;
+        }
+
+        body.dark .phone-notch {
+            background: #000;
+        }
+
+        body[class*="gradient"] .phone-notch {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            border-radius: 30px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+        }
+        .phone-screen img.shot{
+            height: 100%;
+            border-radius: 30px;
+        }
+
+        body.light .phone-screen {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            color: #667eea;
+        }
+
+        body.dark .phone-screen {
+            background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+            color: #00f2fe;
+        }
+
+        body[class*="gradient"] .phone-screen {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            color: #fff;
+        }
+
+        .screen-placeholder {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .screen-placeholder p {
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            opacity: 0.7;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 3rem auto;
+        }
+
+        .tech-item {
+            padding: 2rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.light .tech-item {
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e9ecef;
+        }
+
+        body.dark .tech-item {
+            background: #1a1a1a;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 2px solid #333;
+        }
+
+        body[class*="gradient"] .tech-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tech-item::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tech-item:hover::before {
+            opacity: 1;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-10px);
+        }
+
+        body.light .tech-item:hover {
+            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.2);
+        }
+
+        body.dark .tech-item:hover {
+            box-shadow: 0 20px 50px rgba(0, 242, 254, 0.2);
+        }
+
+        .tech-item h3 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .final-cta {
+            padding: 6rem 5%;
+            text-align: center;
+        }
+
+        .final-cta h2 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .final-cta p {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            opacity: 0.9;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        @keyframes floatPhone {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        @media (max-width: 968px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .hero-content {
+                text-align: center;
+            }
+
+            .hero-visual {
+                height: 400px;
+            }
+
+            .central-icon {
+                font-size: 120px;
+            }
+
+            .phone-mockup-section {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 3%;
+                flex-wrap: wrap;
+            }
+
+            .logo {
+                font-size: 1.4rem;
+            }
+
+            .theme-selector {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+                margin-top: 1rem;
+            }
+
+            section {
+                padding: 6rem 3% 3rem;
+            }
+
+            .tech-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="light">
+    <nav>
+        <div class="logo">NOTORO</div>
+        <div class="nav-controls">
+            <select id="langSwitch" class="btn">
+                <option value="ru">РУС</option>
+                <option value="kz">ҚАЗ</option>
+                <option value="en">ENG</option>
+            </select>
+        </div>
+        <div class="theme-selector">
+            <button class="theme-btn light-theme active" data-theme="light" title="Светлая тема"></button>
+            <button class="theme-btn dark-theme" data-theme="dark" title="Тёмная тема"></button>
+            <button class="theme-btn grad-1" data-theme="gradient-1" title="Градиент 1"></button>
+            <button class="theme-btn grad-2" data-theme="gradient-2" title="Градиент 2"></button>
+            <button class="theme-btn grad-3" data-theme="gradient-3" title="Градиент 3"></button>
+            <button class="theme-btn grad-4" data-theme="gradient-4" title="Градиент 4"></button>
+            <button class="theme-btn grad-5" data-theme="gradient-5" title="Градиент 5"></button>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1 id="heroTitle">Тренируйся с Точностью</h1>
+            <p id="heroSubtitle">NOTORO — твой персональный мобильный тренер, который показывает реальную нагрузку на каждую группу мышц. Создан для смартфонов. Работает на Flutter. Доступен на твоём языке.</p>
+            <button class="cta-btn" id="heroBtn">Начать Тренировки</button>
+        </div>
+        <div class="hero-image">
+            <div class="hero-visual">
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+                <div class="central-icon">💪</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="feature">
+        <h2 id="feature1Title">Точность. Баланс. Прогресс.</h2>
+        <div class="feature-content">
+            <p id="feature1Text1">После каждого подхода ты видишь <strong>мгновенную диаграмму в процентах</strong> — точное распределение нагрузки по группам мышц. Никаких догадок. Только данные.</p>
+            <p id="feature1Text2">На главном экране тебя встречает <strong>накопительная диаграмма</strong> — визуальная карта твоего прогресса. Она показывает, какие мышцы ты развиваешь активно, а какие требуют внимания. Это гарантирует сбалансированное и гармоничное развитие всего тела.</p>
+            <p id="feature1Text3">NOTORO превращает каждую тренировку в осознанный процесс. Ты не просто поднимаешь вес — ты <strong>контролируешь прогресс</strong> с математической точностью.</p>
+        </div>
+        
+        <div class="phone-mockup-section">
+            <div class="phone-frame">
+                <div class="phone-device">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen">
+                            <img class="shot" src="м.jpeg">
+                    </div>
+                </div>
+            </div>
+            <div class="phone-frame">
+                <div class="phone-device">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen">
+                        <img class="shot" src="Басты .jpeg">
+                    </div>
+                </div>
+            </div>
+            <div class="phone-frame">
+                <div class="phone-device">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen">
+                        <img class="shot" src="Жана жаттыгу.jpeg">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="feature">
+        <h2 id="feature2Title">Ваш План. Ваши Правила.</h2>
+        <div class="feature-content">
+            <p id="feature2Text1">Создай недельный тренировочный план за минуты с помощью интуитивного <strong>Drag & Drop интерфейса</strong>. Перемещай упражнения, меняй дни, адаптируй программу под свой график — всё в несколько касаний.</p>
+            <p id="feature2Text2">Не нашёл нужного упражнения? <strong>Создай собственное</strong>. NOTORO даёт полную свободу: добавляй свои движения, указывай работающие группы мышц, загружай изображения — приложение адаптируется под тебя.</p>
+            <p id="feature2Text3">Нужен совет или мотивация? Встроенный <strong>ИИ-Чат-Тренер</strong> всегда на связи. Задай вопрос о технике, попроси составить программу или получи мгновенную поддержку прямо во время тренировки.</p>
+        </div>
+    </section>
+
+    <section class="feature">
+        <h2 id="feature3Title">Создан в Казахстане. Сделан для Вас.</h2>
+        <div class="tech-grid">
+            <div class="tech-item">
+                <h3>🌍</h3>
+                <p id="tech1Text">Полная локализация на русский, казахский и английский языки. NOTORO говорит на твоём языке.</p>
+            </div>
+            <div class="tech-item">
+                <h3>🔒</h3>
+                <p id="tech2Text">Все данные хранятся локально на твоём устройстве. Никаких облаков, никаких серверов — твоя приватность под защитой.</p>
+            </div>
+            <div class="tech-item">
+                <h3>📱</h3>
+                <p id="tech3Text">Простой и понятный интерфейс, созданный специально для смартфонов. Никаких лишних деталей — только то, что нужно для тренировки.</p>
+            </div>
+            <div class="tech-item">
+                <h3>⚡</h3>
+                <p id="tech4Text">Разработан на Flutter (Dart) — кроссплатформенная технология для максимальной производительности на iOS и Android.</p>
+            </div>
+        </div>
+        <div class="feature-content">
+            <p id="feature3Text">Этот сайт — живой пример нашего подхода к дизайну. <strong>Адаптивная вёрстка на чистом HTML/CSS/JS</strong>, плавная смена тем (светлая/тёмная + 5 градиентов) и мгновенное переключение языков. Никаких фреймворков — только чистый, оптимизированный код.</p>
+        </div>
+    </section>
+
+    <div class="final-cta">
+        <h2 id="ctaTitle">Готов Изменить Подход к Тренировкам?</h2>
+        <p id="ctaText">NOTORO — это не просто приложение для подсчёта подходов. Это твой цифровой тренер, аналитик и мотиватор в одном устройстве. Скачай сейчас и почувствуй разницу между тренировками и осознанным прогрессом.</p>
+        <button class="cta-btn" id="finalBtn">Скачать NOTORO</button>
+    </div>
+
+    <script>
+        const translations = {
+            ru: {
+                heroTitle: "Тренируйся с Точностью",
+                heroSubtitle: "NOTORO — твой персональный мобильный тренер, который показывает реальную нагрузку на каждую группу мышц. Создан для смартфонов. Работает на Flutter. Доступен на твоём языке.",
+                heroBtn: "Начать Тренировки",
+                feature1Title: "Точность. Баланс. Прогресс.",
+                feature1Text1: "После каждого подхода ты видишь мгновенную диаграмму в процентах — точное распределение нагрузки по группам мышц. Никаких догадок. Только данные.",
+                feature1Text2: "На главном экране тебя встречает накопительная диаграмма — визуальная карта твоего прогресса. Она показывает, какие мышцы ты развиваешь активно, а какие требуют внимания. Это гарантирует сбалансированное и гармоничное развитие всего тела.",
+                feature1Text3: "NOTORO превращает каждую тренировку в осознанный процесс. Ты не просто поднимаешь вес — ты контролируешь прогресс с математической точностью.",
+                phone1Text: "Диаграмма нагрузки",
+                phone2Text: "Прогресс тренировок",
+                phone3Text: "Личные достижения",
+                feature2Title: "Ваш План. Ваши Правила.",
+                feature2Text1: "Создай недельный тренировочный план за минуты с помощью интуитивного Drag & Drop интерфейса. Перемещай упражнения, меняй дни, адаптируй программу под свой график — всё в несколько касаний.",
+                feature2Text2: "Не нашёл нужного упражнения? Создай собственное. NOTORO даёт полную свободу: добавляй свои движения, указывай работающие группы мышц, загружай изображения — приложение адаптируется под тебя.",
+                feature2Text3: "Нужен совет или мотивация? Встроенный ИИ-Чат-Тренер всегда на связи. Задай вопрос о технике, попроси составить программу или получи мгновенную поддержку прямо во время тренировки.",
+                feature3Title: "Создан в Казахстане. Сделан для Вас.",
+                tech1Text: "Полная локализация на русский, казахский и английский языки. NOTORO говорит на твоём языке.",
+                tech2Text: "Все данные хранятся локально на твоём устройстве. Никаких облаков, никаких серверов — твоя приватность под защитой.",
+                tech3Text: "Простой и понятный интерфейс, созданный специально для смартфонов. Никаких лишних деталей — только то, что нужно для тренировки.",
+                tech4Text: "Разработан на Flutter (Dart) — кроссплатформенная технология для максимальной производительности на iOS и Android.",
+                feature3Text: "Этот сайт — живой пример нашего подхода к дизайну. Адаптивная вёрстка на чистом HTML/CSS/JS, плавная смена тем (светлая/тёмная + 5 градиентов) и мгновенное переключение языков. Никаких фреймворков — только чистый, оптимизированный код.",
+                ctaTitle: "Готов Изменить Подход к Тренировкам?",
+                ctaText: "NOTORO — это не просто приложение для подсчёта подходов. Это твой цифровой тренер, аналитик и мотиватор в одном устройстве. Скачай сейчас и почувствуй разницу между тренировками и осознанным прогрессом.",
+                finalBtn: "Скачать NOTORO"
+            },
+            kz: {
+                heroTitle: "Дәлдікпен Жаттығу",
+                heroSubtitle: "NOTORO — әрбір бұлшықет топтарына нақты жүктемені көрсететін жеке мобильді жаттықтырушың. Смартфондарға арналған. Flutter негізінде жұмыс істейді. Сенің тіліңде қолжетімді.",
+                heroBtn: "Жаттығуды Бастау",
+                feature1Title: "Дәлдік. Тепе-теңдік. Прогресс.",
+                feature1Text1: "Әрбір қайталаудан кейін сен пайызбен жедел диаграмманы көресің — бұлшықет топтары бойынша жүктеменің нақты бөлінуі. Болжамдар жоқ. Тек деректер.",
+                feature1Text2: "Басты экранда сені жинақталған диаграмма қарсы алады — прогрессіңнің визуалды картасы. Ол қай бұлшықеттерді белсенді дамытып жатқаныңды, ал қайсылары назар аударуды қажет ететінін көрсетеді. Бұл бүкіл дененің теңдестірілген және үйлесімді дамуын кепілдік етеді.",
+                feature1Text3: "NOTORO әрбір жаттығуды саналы процеске айналдырады. Сен жай ғана салмақ көтермейсің — математикалық дәлдікпен прогрессті бақылайсың.",
+                phone1Text: "Жүктеме диаграммасы",
+                phone2Text: "Жаттығу прогрессі",
+                phone3Text: "Жеке жетістіктер",
+                feature2Title: "Сіздің Жоспар. Сіздің Ережелер.",
+                feature2Text1: "Интуитивті Drag & Drop интерфейсінің көмегімен бірнеше минутта апталық жаттығу жоспарын жаса. Жаттығуларды жылжыт, күндерді өзгерт, бағдарламаны өз кестеңе бейімде — барлығы бірнеше түртумен.",
+                feature2Text2: "Қажетті жаттығуды таба алмадың ба? Өзіңнің жаттығуыңды жаса. NOTORO толық бостандық береді: өз қозғалыстарыңды қос, жұмыс істейтін бұлшықет топтарын көрсет, суреттерді жүкте — қосымша саған бейімделеді.",
+                feature2Text3: "Кеңес немесе мотивация қажет пе? Кіріктірілген AI-Чат-Жаттықтырушы әрқашан байланыста. Техника туралы сұрақ қой, бағдарлама құруды сұра немесе жаттығу кезінде жедел қолдау ал.",
+                feature3Title: "Қазақстанда Жасалды. Сіз Үшін Жасалды.",
+                tech1Text: "Орыс, қазақ және ағылшын тілдеріне толық локализация. NOTORO сенің тіліңде сөйлейді.",
+                tech2Text: "Барлық деректер құрылғыңда жергілікті сақталады. Бұлттар жоқ, серверлер жоқ — сенің құпиялылығың қорғауда.",
+                tech3Text: "Смартфондарға арнайы жасалған қарапайым және түсінікті интерфейс. Артық бөлшектер жоқ — тек жаттығуға қажеттілер.",
+                tech4Text: "Flutter (Dart) негізінде әзірленген — iOS және Android жүйелерінде максималды өнімділікке арналған кроссплатформалық технология.",
+                feature3Text: "Бұл сайт — біздің дизайнға көзқарасымыздың тірі мысалы. Таза HTML/CSS/JS негізінде бейімделгіш верстка, тақырыптардың тегіс ауысуы (ашық/қараңғы + 5 градиент) және тілдерді жедел ауыстыру. Фреймворктер жоқ — тек таза, оңтайландырылған код.",
+                ctaTitle: "Жаттығуға Көзқарасты Өзгертуге Дайынсың ба?",
+                ctaText: "NOTORO — бұл қайталауларды есептеу үшін қосымша ғана емес. Бұл бір құрылғыда сенің сандық жаттықтырушың, аналитик және мотиваторың. Қазір жүктеп ал және жаттығулар мен саналы прогресс арасындағы айырмашылықты сезін.",
+                finalBtn: "NOTORO Жүктеу"
+            },
+            en: {
+                heroTitle: "Train with Precision",
+                heroSubtitle: "NOTORO is your personal mobile trainer that shows real load on every muscle group. Built for smartphones. Powered by Flutter. Available in your language.",
+                heroBtn: "Start Training",
+                feature1Title: "Precision. Balance. Progress.",
+                feature1Text1: "After each set, you see an instant percentage diagram — precise load distribution across muscle groups. No guessing. Just data.",
+                feature1Text2: "On the main screen, you're greeted by a cumulative diagram — a visual map of your progress. It shows which muscles you're actively developing and which ones need attention. This ensures balanced and harmonious development of your entire body.",
+                feature1Text3: "NOTORO transforms every workout into a conscious process. You're not just lifting weight — you're controlling progress with mathematical precision.",
+                phone1Text: "Load Chart",
+                phone2Text: "Training Progress",
+                phone3Text: "Personal Achievements",
+                feature2Title: "Your Plan. Your Rules.",
+                feature2Text1: "Create a weekly training plan in minutes with an intuitive Drag & Drop interface. Move exercises, change days, adapt the program to your schedule — all in a few taps.",
+                feature2Text2: "Didn't find the exercise you need? Create your own. NOTORO gives you complete freedom: add your movements, specify working muscle groups, upload images — the app adapts to you.",
+                feature2Text3: "Need advice or motivation? The built-in AI Chat Trainer is always online. Ask about technique, request a program, or get instant support right during your workout.",
+                feature3Title: "Made in Kazakhstan. Built for You.",
+                tech1Text: "Full localization in Russian, Kazakh, and English. NOTORO speaks your language.",
+                tech2Text: "All data is stored locally on your device. No clouds, no servers — your privacy is protected.",
+                tech3Text: "Simple and clear interface created specifically for smartphones. No unnecessary details — only what's needed for training.",
+                tech4Text: "Developed on Flutter (Dart) — cross-platform technology for maximum performance on iOS and Android.",
+                feature3Text: "This website is a living example of our approach to design. Adaptive layout in pure HTML/CSS/JS, smooth theme switching (light/dark + 5 gradients), and instant language changes. No frameworks — just clean, optimized code.",
+                ctaTitle: "Ready to Change Your Approach to Training?",
+                ctaText: "NOTORO is not just an app for counting sets. It's your digital trainer, analyst, and motivator in one device. Download now and feel the difference between workouts and conscious progress.",
+                finalBtn: "Download NOTORO"
+            }
+        };
+
+        const langSwitch = document.getElementById('langSwitch');
+        const themeButtons = document.querySelectorAll('.theme-btn');
+        const body = document.body;
+
+        // Language switching
+        langSwitch.addEventListener('change', (e) => {
+            const lang = e.target.value;
+            const t = translations[lang];
+            
+            Object.keys(t).forEach(key => {
+                const el = document.getElementById(key);
+                if (el) el.textContent = t[key];
+            });
+        });
+
+        // Theme switching
+        themeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const theme = btn.dataset.theme;
+                
+                // Remove all theme classes
+                body.className = '';
+                
+                // Add new theme
+                body.classList.add(theme);
+                
+                // Update active state
+                themeButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // CTA buttons
+        document.querySelectorAll('.cta-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                alert('Скоро в App Store и Google Play!');
+            });
+        });
+
+        // Add scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.tech-item, .phone-frame').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
